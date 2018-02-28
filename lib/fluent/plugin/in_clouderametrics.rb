@@ -32,7 +32,9 @@ module Fluent
       config_param :timespan,           :integer, :default => 300
       config_param :user,               :string,  :default => "user"
       config_param :pass,               :string,  :default => "pass"
-      config_param :api_version,        :string, :default => "v19"
+      config_param :api_version,        :string,  :default => "v19"  # this might not resolve fast enough :(
+      config_param :tag,                :string,  :default => "cloudera.metrics"
+      config_param :manager_uri,        :string,  :default => "http://wesyao-cloudera-mn0.westus.cloudapp.azure.com:7180/api/#{api_version}/timeseries?query=select+*+where+roletype=DATANODE"
 
       def watch
         log.debug "cloudera metrics: watch thread starting"
@@ -43,14 +45,27 @@ module Fluent
             end_time = @next_fetch_time
     
             log.debug "start time: #{start_time}, end time: #{end_time}"
+
+            body = query
     
-            # monitor_metrics_promise = get_monitor_metrics_async(start_time, end_time)
-            # monitor_metrics = monitor_metrics_promise.value!
-    
-            #router.emit(@tag, Time.now.to_i, monitor_metrics.body['value'])
+            router.emit @tag, Fluent::Engine.now, body
+
             @next_fetch_time += @timespan
             sleep @timespan
         end
+      end
+      
+      def query
+        uri = URI(@manager_uri)
+
+        req = Net::HTTP::Get.new(uri)
+        req.basic_auth @user, @pass
+
+        res = Net::HTTP.start(uri.hostname, uri.port) {|http|
+          http.request(req)
+        }
+
+        res.body
       end
 
       # Called before starting
