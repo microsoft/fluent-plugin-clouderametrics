@@ -14,6 +14,8 @@
 # limitations under the License.
 
 require "fluent/plugin/input"
+require "uri"
+require "json"
 
 module Fluent
   module Plugin
@@ -21,6 +23,29 @@ module Fluent
       # Register plugin. NAME is the name of this plugin
       # and it identifes the plugin in the config file
       Fluent::Plugin.register_input("clouderametrics", self)
+ 
+      config_param :timespan,           :integer, :default => 300
+      config_param :user,               :string,  :default => "user"
+      config_param :pass,               :string,  :default => "pass"
+
+      def watch
+        log.debug "cloudera metrics: watch thread starting"
+        @next_fetch_time = Time.now
+    
+        until @finished
+            start_time = @next_fetch_time - @timespan
+            end_time = @next_fetch_time
+    
+            log.debug "start time: #{start_time}, end time: #{end_time}"
+    
+            # monitor_metrics_promise = get_monitor_metrics_async(start_time, end_time)
+            # monitor_metrics = monitor_metrics_promise.value!
+    
+            #router.emit(@tag, Time.now.to_i, monitor_metrics.body['value'])
+            @next_fetch_time += @timespan
+            sleep @timespan
+        end
+      end
 
       # Called before starting
       def configure(conf)
