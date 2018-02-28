@@ -24,9 +24,15 @@ module Fluent
       # and it identifes the plugin in the config file
       Fluent::Plugin.register_input("clouderametrics", self)
  
+      # To support log_level option implemented by Fluentd v0.10.43
+      unless method_defined?(:log)
+        define_method("log") { $log }
+      end
+
       config_param :timespan,           :integer, :default => 300
       config_param :user,               :string,  :default => "user"
       config_param :pass,               :string,  :default => "pass"
+      config_param :api_version,        :string, :default => "v19"
 
       def watch
         log.debug "cloudera metrics: watch thread starting"
@@ -54,10 +60,13 @@ module Fluent
 
       def start
         super
+        @watcher = Thread.new(&method(:watch))
       end
 
       def shutdown
         super
+        @watcher.terminate
+        @watcher.join
       end
     end
   end
