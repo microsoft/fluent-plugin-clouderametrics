@@ -22,7 +22,16 @@ module Fluent
       # and it identifes the plugin in the config file
       Fluent::Plugin.register_input("clouderametrics", self)
 
+      # Called before starting
       def configure(conf)
+        super
+      end
+
+      def start
+        super
+      end
+
+      def shutdown
         super
       end
     end
