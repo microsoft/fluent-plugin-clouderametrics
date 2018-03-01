@@ -16,6 +16,7 @@
 require "fluent/plugin/input"
 require "uri"
 require "json"
+require 'net/http'
 
 module Fluent
   module Plugin
@@ -29,12 +30,15 @@ module Fluent
         define_method("log") { $log }
       end
 
-      config_param :timespan,           :integer, :default => 300
+      config_param :host,               :string,  :default => "http://localhost"
+      config_param :port,               :integer,  :default => "7180"
+
+      config_param :timespan,           :integer, :default => 2
       config_param :user,               :string,  :default => "user"
       config_param :pass,               :string,  :default => "pass"
       config_param :api_version,        :string,  :default => "v19"  # this might not resolve fast enough :(
       config_param :tag,                :string,  :default => "cloudera.metrics"
-      config_param :manager_uri,        :string,  :default => "http://wesyao-cloudera-mn0.westus.cloudapp.azure.com:7180/api/#{api_version}/timeseries?query=select+*+where+roletype=DATANODE"
+      config_param :manager_uri,        :string,  :default => "http://wesyao-cloudera-mn0.westus.cloudapp.azure.com:7180/api/v19/timeseries?query=select+*+where+roletype=DATANODE"
 
       def watch
         log.debug "cloudera metrics: watch thread starting"
@@ -46,8 +50,8 @@ module Fluent
     
             log.debug "start time: #{start_time}, end time: #{end_time}"
 
-            body = query
-    
+            body = get_cloudera_metrics
+
             router.emit @tag, Fluent::Engine.now, body
 
             @next_fetch_time += @timespan
@@ -55,7 +59,7 @@ module Fluent
         end
       end
       
-      def query
+      def get_cloudera_metrics
         uri = URI(@manager_uri)
 
         req = Net::HTTP::Get.new(uri)
@@ -71,15 +75,18 @@ module Fluent
       # Called before starting
       def configure(conf)
         super
+        log.debug "configure"
       end
 
       def start
         super
+        log.debug "start"
         @watcher = Thread.new(&method(:watch))
       end
 
       def shutdown
         super
+        log.debug "shutdown"
         @watcher.terminate
         @watcher.join
       end
