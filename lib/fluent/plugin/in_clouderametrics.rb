@@ -52,9 +52,14 @@ module Fluent
     
             log.debug "start time: #{start_time}, end time: #{end_time}"
 
-            body = get_cloudera_metrics
+            res = get_cloudera_metrics
             
-            router.emit @tag, Fluent::Engine.now, body
+            log.debug "#{res.code} - #{res.message}"
+
+            case res
+              when Net::HTTPSuccess
+                router.emit @tag, Fluent::Engine.now, JSON.load(res.body)
+            end
 
             @next_fetch_time += @timespan
             sleep @timespan
@@ -63,6 +68,7 @@ module Fluent
       
       def get_cloudera_metrics
         uri = URI(@manager_uri)
+        log.debug uri
 
         req = Net::HTTP::Get.new(uri)
         req.basic_auth @user, @pass
@@ -71,7 +77,7 @@ module Fluent
           http.request(req)
         }
 
-        res.body
+        res
       end
 
       # Called before starting
