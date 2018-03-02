@@ -31,6 +31,14 @@ $ gem install fluent-plugin-clouderametrics
 </source>
 ```
 
+## Test
+
+Run tests:
+
+```
+$ rake test
+```
+
 ## Copyright
 
 * Copyright(c) 2018- Wesley Yao & Zach Miller
