@@ -39,7 +39,7 @@ module Fluent
       config_param :user,               :string,  :default => "user"
       config_param :pass,               :string,  :default => "pass"
 
-      config_param :timespan,           :integer, :default => 2
+      config_param :timespan,           :integer, :default => 60 # polling interval in seconds
       config_param :tag,                :string,  :default => "cloudera.metrics"
 
       def watch
@@ -53,8 +53,6 @@ module Fluent
             log.debug "start time: #{start_time}, end time: #{end_time}"
 
             body = get_cloudera_metrics
-
-            log.debug body
             
             router.emit @tag, Fluent::Engine.now, body
 
@@ -65,7 +63,6 @@ module Fluent
       
       def get_cloudera_metrics
         uri = URI(@manager_uri)
-        log.debug uri
 
         req = Net::HTTP::Get.new(uri)
         req.basic_auth @user, @pass
@@ -74,28 +71,25 @@ module Fluent
           http.request(req)
         }
 
-        log.debug res.code
-        log.debug res.message
-
         res.body
       end
 
       # Called before starting
       def configure(conf)
         super
-        log.debug "configure"
+        log.debug "configure cloudera metrics"
         @manager_uri = "#{host}:#{port}/api/#{api_version}/#{api_endpoint}?query=#{query}"
       end
 
       def start
         super
-        log.debug "start"
+        log.debug "start cloudera metrics watcher thread"
         @watcher = Thread.new(&method(:watch))
       end
 
       def shutdown
         super
-        log.debug "shutdown"
+        log.debug "shutdown cloudera metrics watcher thread"
         @watcher.terminate
         @watcher.join
       end
