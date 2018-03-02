@@ -31,14 +31,16 @@ module Fluent
       end
 
       config_param :host,               :string,  :default => "http://localhost"
-      config_param :port,               :integer,  :default => "7180"
+      config_param :port,               :integer, :default => "7180"
+      config_param :api_version,        :string,  :default => "v19"
+      config_param :api_endpoint,       :string
+      config_param :query,              :string
 
-      config_param :timespan,           :integer, :default => 2
       config_param :user,               :string,  :default => "user"
       config_param :pass,               :string,  :default => "pass"
-      config_param :api_version,        :string,  :default => "v19"  # this might not resolve fast enough :(
+
+      config_param :timespan,           :integer, :default => 2
       config_param :tag,                :string,  :default => "cloudera.metrics"
-      config_param :manager_uri,        :string,  :default => "http://wesyao-cloudera-mn0.westus.cloudapp.azure.com:7180/api/v19/timeseries?query=select+cpu_user_rate+where+roletype=DATANODE"
 
       def watch
         log.debug "cloudera metrics: watch thread starting"
@@ -82,6 +84,7 @@ module Fluent
       def configure(conf)
         super
         log.debug "configure"
+        @manager_uri = "#{host}:#{port}/api/#{api_version}/#{api_endpoint}?query=#{query}"
       end
 
       def start
