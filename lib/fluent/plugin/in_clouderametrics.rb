@@ -38,7 +38,7 @@ module Fluent
       config_param :pass,               :string,  :default => "pass"
       config_param :api_version,        :string,  :default => "v19"  # this might not resolve fast enough :(
       config_param :tag,                :string,  :default => "cloudera.metrics"
-      config_param :manager_uri,        :string,  :default => "http://wesyao-cloudera-mn0.westus.cloudapp.azure.com:7180/api/v19/timeseries?query=select+*+where+roletype=DATANODE"
+      config_param :manager_uri,        :string,  :default => "http://wesyao-cloudera-mn0.westus.cloudapp.azure.com:7180/api/v19/timeseries?query=select+cpu_user_rate+where+roletype=DATANODE"
 
       def watch
         log.debug "cloudera metrics: watch thread starting"
@@ -52,6 +52,8 @@ module Fluent
 
             body = get_cloudera_metrics
 
+            log.debug body
+            
             router.emit @tag, Fluent::Engine.now, body
 
             @next_fetch_time += @timespan
@@ -61,6 +63,7 @@ module Fluent
       
       def get_cloudera_metrics
         uri = URI(@manager_uri)
+        log.debug uri
 
         req = Net::HTTP::Get.new(uri)
         req.basic_auth @user, @pass
@@ -68,6 +71,9 @@ module Fluent
         res = Net::HTTP.start(uri.hostname, uri.port) {|http|
           http.request(req)
         }
+
+        log.debug res.code
+        log.debug res.message
 
         res.body
       end
