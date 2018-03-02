@@ -34,4 +34,4 @@ $ gem install fluent-plugin-clouderametrics
 
 * Copyright(c) 2018- Wesley Yao & Zach Miller
 * License
-  * Apache License, Version 2.0
+  * MIT
