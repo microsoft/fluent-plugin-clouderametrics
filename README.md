@@ -25,8 +25,8 @@ $ gem install fluent-plugin-clouderametrics
   pass  password                         (default: password)
   host  http://cloudera-host.com         (default: http://localhost)
   port  7180                             (default: 7180)
-  api_endpoint timeseries
   api_version v19                        (default: v19)
+  api_endpoint timeseries
   query select+*+where+roletype=DATANODE
 </source>
 ```
