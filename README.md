@@ -30,8 +30,6 @@ $ gem install fluent-plugin-clouderametrics
 </source>
 ```
 
-You can copy and paste generated documents here.
-
 ## Copyright
 
 * Copyright(c) 2018- Wesley Yao & Zach Miller
