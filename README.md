@@ -4,7 +4,7 @@
 
 Cloudera metrics plugin queries for cloudera cluster metrics and is easily configurable so that you can pull the metrics you want.
 
-[Cloudera Manager APIs](https://cloudera.github.io/cm_api/apidocs/v19/index.html/)
+[Cloudera Manager APIs](https://cloudera.github.io/cm_api/apidocs/v19/index.html/) provides documentation on how to use each api.
 
 ## Installation
 
