@@ -1,4 +1,5 @@
 # fluent-plugin-clouderametrics
+[![Gem Version](https://badge.fury.io/rb/fluent-plugin-clouderametrics.svg)](https://badge.fury.io/rb/fluent-plugin-clouderametrics)
 
 [Fluentd](https://fluentd.org/) input plugin for cloudera metrics.
 
