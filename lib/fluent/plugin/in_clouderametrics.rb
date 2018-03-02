@@ -16,6 +16,7 @@
 require "fluent/plugin/input"
 require "uri"
 require "json"
+require 'net/http'
 
 module Fluent
   module Plugin
@@ -24,9 +25,22 @@ module Fluent
       # and it identifes the plugin in the config file
       Fluent::Plugin.register_input("clouderametrics", self)
  
-      config_param :timespan,           :integer, :default => 300
+      # To support log_level option implemented by Fluentd v0.10.43
+      unless method_defined?(:log)
+        define_method("log") { $log }
+      end
+
+      config_param :host,               :string,  :default => "http://localhost"
+      config_param :port,               :integer, :default => "7180"
+      config_param :api_version,        :string,  :default => "v19"
+      config_param :api_endpoint,       :string
+      config_param :query,              :string
+
       config_param :user,               :string,  :default => "user"
       config_param :pass,               :string,  :default => "pass"
+
+      config_param :timespan,           :integer, :default => 60 # polling interval in seconds
+      config_param :tag,                :string,  :default => "cloudera.metrics"
 
       def watch
         log.debug "cloudera metrics: watch thread starting"
@@ -37,27 +51,47 @@ module Fluent
             end_time = @next_fetch_time
     
             log.debug "start time: #{start_time}, end time: #{end_time}"
-    
-            # monitor_metrics_promise = get_monitor_metrics_async(start_time, end_time)
-            # monitor_metrics = monitor_metrics_promise.value!
-    
-            #router.emit(@tag, Time.now.to_i, monitor_metrics.body['value'])
+
+            body = get_cloudera_metrics
+            
+            router.emit @tag, Fluent::Engine.now, body
+
             @next_fetch_time += @timespan
             sleep @timespan
         end
+      end
+      
+      def get_cloudera_metrics
+        uri = URI(@manager_uri)
+
+        req = Net::HTTP::Get.new(uri)
+        req.basic_auth @user, @pass
+
+        res = Net::HTTP.start(uri.hostname, uri.port) {|http|
+          http.request(req)
+        }
+
+        res.body
       end
 
       # Called before starting
       def configure(conf)
         super
+        log.debug "configure cloudera metrics"
+        @manager_uri = "#{host}:#{port}/api/#{api_version}/#{api_endpoint}?query=#{query}"
       end
 
       def start
         super
+        log.debug "start cloudera metrics watcher thread"
+        @watcher = Thread.new(&method(:watch))
       end
 
       def shutdown
         super
+        log.debug "shutdown cloudera metrics watcher thread"
+        @watcher.terminate
+        @watcher.join
       end
     end
   end

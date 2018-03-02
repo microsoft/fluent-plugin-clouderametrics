@@ -3,14 +3,14 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |spec|
   spec.name    = "fluent-plugin-clouderametrics"
-  spec.version = "0.0.1"
-  spec.authors = ["Wesley Yao"]
-  spec.email   = ["wesyao@microsoft.com"]
+  spec.version = "1.0.0"
+  spec.authors = ["Wesley Yao", "Zach Miller"]
+  spec.email   = ["wesyao@microsoft.com", "zamiller@microsoft.com"]
 
-  spec.summary       = %q{TODO: Write a short summary, because Rubygems requires one.}
-  spec.description   = %q{TODO: Write a longer description or delete this line.}
-  spec.homepage      = "TODO: Put your gem's website or public repo URL here."
-  spec.license       = "Apache-2.0"
+  spec.summary       = "Input plugin for cloudera manager."
+  spec.description   = spec.summary
+  spec.homepage      = "https://github.com/wesyao/fluent-plugin-clouderametrics"
+  spec.license       = "MIT"
 
   test_files, files  = `git ls-files -z`.split("\x0").partition do |f|
     f.match(%r{^(test|spec|features)/})
