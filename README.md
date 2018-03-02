@@ -19,8 +19,8 @@ $ gem install fluent-plugin-clouderametrics
 
 ```
 <source>
-  @type clouderametrics
-  tag   tagname                                 (default: cloudera.metrics)
+  @type        clouderametrics
+  tag          tagname                          (default: cloudera.metrics)
   timespan     60                               (default: 60) [seconds]
   user         username                         (default: user)
   pass         password                         (default: password)
