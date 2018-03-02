@@ -20,14 +20,15 @@ $ gem install fluent-plugin-clouderametrics
 ```
 <source>
   @type clouderametrics
-  tag   tagname                          (default: cloudera.metrics)
-  user  username                         (default: user)
-  pass  password                         (default: password)
-  host  http://cloudera-host.com         (default: http://localhost)
-  port  7180                             (default: 7180)
-  api_version v19                        (default: v19)
+  tag   tagname                                 (default: cloudera.metrics)
+  timespan     60                               (default: 60) [seconds]
+  user         username                         (default: user)
+  pass         password                         (default: password)
+  host         http://cloudera-host.com         (default: http://localhost)
+  port         7180                             (default: 7180)
+  api_version  v19                              (default: v19)
   api_endpoint timeseries
-  query select+*+where+roletype=DATANODE
+  query        select+*+where+roletype=DATANODE
 </source>
 ```
 
