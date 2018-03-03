@@ -34,7 +34,7 @@ module Fluent
       config_param :port,               :integer, :default => "7180"
       config_param :api_version,        :string,  :default => "v19"
       config_param :api_endpoint,       :string
-      config_param :query,              :string
+      config_param :query,              :string,  :default => ""
 
       config_param :user,               :string,  :default => "user"
       config_param :pass,               :string,  :default => "pass"
@@ -44,14 +44,8 @@ module Fluent
 
       def watch
         log.debug "cloudera metrics: watch thread starting"
-        @next_fetch_time = Time.now
-    
-        until @finished
-            start_time = @next_fetch_time - @timespan
-            end_time = @next_fetch_time
-    
-            log.debug "start time: #{start_time}, end time: #{end_time}"
 
+        until @finished
             res = get_cloudera_metrics
             
             log.debug "#{res.code} - #{res.message}"
@@ -61,7 +55,6 @@ module Fluent
                 router.emit @tag, Fluent::Engine.now, JSON.load(res.body)
             end
 
-            @next_fetch_time += @timespan
             sleep @timespan
         end
       end
@@ -83,19 +76,25 @@ module Fluent
       # Called before starting
       def configure(conf)
         super
-        log.debug "configure cloudera metrics"
-        @manager_uri = "#{host}:#{port}/api/#{api_version}/#{api_endpoint}?query=#{query}"
+        log.debug "Configure cloudera metrics"
+        @manager_uri = "#{host}:#{port}/api/#{api_version}/#{api_endpoint}"
+
+        if query != nil && !query.empty?
+          @manager_uri += "?query=#{query}"
+        else
+          log.debug "No query param. The Cloudera API may require one."
+        end
       end
 
       def start
         super
-        log.debug "start cloudera metrics watcher thread"
+        log.debug "Start cloudera metrics watcher thread"
         @watcher = Thread.new(&method(:watch))
       end
 
       def shutdown
         super
-        log.debug "shutdown cloudera metrics watcher thread"
+        log.debug "Shutdown cloudera metrics watcher thread"
         @watcher.terminate
         @watcher.join
       end
