@@ -21,7 +21,7 @@ require 'net/http'
 module Fluent
   module Plugin
     class ClouderametricsInput < Fluent::Plugin::Input
-      # Register plugin. NAME is the name of this plugin
+      # Register plugin. clouderametrics is the name of this plugin
       # and it identifes the plugin in the config file
       Fluent::Plugin.register_input("clouderametrics", self)
  
