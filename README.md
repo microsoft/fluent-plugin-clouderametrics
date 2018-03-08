@@ -28,7 +28,25 @@ $ gem install fluent-plugin-clouderametrics
   port         7180                             (default: 7180)
   api_version  v19                              (default: v19)
   api_endpoint timeseries
-  query        select+*+where+roletype=DATANODE
+  query        select+*+where+roletype=DATANODE (default: "")
+</source>
+
+```
+
+### Sample Configuration
+
+```
+<source>
+  @type clouderametrics
+  tag azure.cloudera
+  timespan 10
+  user username
+  pass password
+  host http://test-cloudera-mn0.westus.cloudapp.azure.com
+  port 7180
+  api_endpoint hosts
+  api_version v17
+  query select+cpu_user_rate+where+roletype=DATANODE
 </source>
 ```
 
