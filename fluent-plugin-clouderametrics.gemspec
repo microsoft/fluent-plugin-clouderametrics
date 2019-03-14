@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
 
   spec.summary       = "Input plugin for cloudera manager."
   spec.description   = spec.summary
-  spec.homepage      = "https://github.com/wesyao/fluent-plugin-clouderametrics"
+  spec.homepage      = "https://github.com/Microsoft/fluent-plugin-clouderametrics"
   spec.license       = "MIT"
 
   test_files, files  = `git ls-files -z`.split("\x0").partition do |f|
